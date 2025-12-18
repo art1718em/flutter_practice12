@@ -10,8 +10,22 @@ import 'package:flutter_practice12/shared/utils/format_helpers.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-class ServiceHistoryScreen extends StatelessWidget {
+class ServiceHistoryScreen extends StatefulWidget {
   const ServiceHistoryScreen({super.key});
+
+  @override
+  State<ServiceHistoryScreen> createState() => _ServiceHistoryScreenState();
+}
+
+class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      context.read<VehiclesCubit>().loadVehicles();
+      context.read<ServiceHistoryCubit>().loadServiceRecords();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,29 +1,40 @@
 import 'package:flutter_practice12/core/models/favorite_place_model.dart';
+import 'package:flutter_practice12/core/storage/database_helper.dart';
 import 'package:flutter_practice12/data/datasources/places/favorite_place_dto.dart';
 import 'package:flutter_practice12/data/datasources/places/favorite_place_mapper.dart';
 import 'package:uuid/uuid.dart';
 
 class PlacesLocalDataSource {
   final _uuid = const Uuid();
-  final List<FavoritePlaceDto> _places = [];
+  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
   Future<List<FavoritePlaceModel>> getPlaces() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return _places.map((dto) => dto.toModel()).toList();
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'favorite_places',
+      orderBy: 'name ASC',
+    );
+
+    return maps.map((map) => FavoritePlaceDto.fromJson(map).toModel()).toList();
   }
 
   Future<FavoritePlaceModel> getPlaceById(String id) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    try {
-      final dto = _places.firstWhere((p) => p.id == id);
-      return dto.toModel();
-    } catch (e) {
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'favorite_places',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isEmpty) {
       throw Exception('Место с id $id не найдено');
     }
+
+    return FavoritePlaceDto.fromJson(maps.first).toModel();
   }
 
   Future<void> addPlace(FavoritePlaceModel place) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    final db = await _dbHelper.database;
     final newPlace = FavoritePlaceModel(
       id: _uuid.v4(),
       name: place.name,
@@ -34,26 +45,34 @@ class PlacesLocalDataSource {
       notes: place.notes,
       lastVisit: place.lastVisit,
     );
-    _places.add(newPlace.toDto());
+
+    await db.insert(
+      'favorite_places',
+      newPlace.toDto().toJson(),
+    );
   }
 
   Future<void> updatePlace(FavoritePlaceModel place) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    try {
-      final index = _places.indexWhere((p) => p.id == place.id);
-      if (index >= 0) {
-        _places[index] = place.toDto();
-      } else {
-        throw Exception('Место с id ${place.id} не найдено');
-      }
-    } catch (e) {
-      rethrow;
+    final db = await _dbHelper.database;
+    final result = await db.update(
+      'favorite_places',
+      place.toDto().toJson(),
+      where: 'id = ?',
+      whereArgs: [place.id],
+    );
+
+    if (result == 0) {
+      throw Exception('Место с id ${place.id} не найдено');
     }
   }
 
   Future<void> deletePlace(String id) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    _places.removeWhere((p) => p.id == id);
+    final db = await _dbHelper.database;
+    await db.delete(
+      'favorite_places',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 }
 

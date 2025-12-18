@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 
+import 'package:flutter_practice12/core/storage/database_helper.dart';
 import 'package:flutter_practice12/data/datasources/auth/auth_local_datasource.dart';
 import 'package:flutter_practice12/data/datasources/vehicles/vehicles_local_datasource.dart';
 import 'package:flutter_practice12/data/datasources/expenses/expenses_local_datasource.dart';
@@ -62,6 +63,8 @@ import 'package:flutter_practice12/features/settings/logic/settings_cubit.dart';
 final getIt = GetIt.instance;
 
 Future<void> setupDependencies() async {
+  await DatabaseHelper.instance.database;
+
   getIt.registerLazySingleton<AuthLocalDataSource>(() => AuthLocalDataSource());
   getIt.registerLazySingleton<VehiclesLocalDataSource>(() => VehiclesLocalDataSource());
   getIt.registerLazySingleton<ExpensesLocalDataSource>(() => ExpensesLocalDataSource());

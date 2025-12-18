@@ -6,8 +6,21 @@ import 'package:flutter_practice12/features/favorite_places/logic/favorite_place
 import 'package:flutter_practice12/core/models/favorite_place_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class FavoritePlacesScreen extends StatelessWidget {
+class FavoritePlacesScreen extends StatefulWidget {
   const FavoritePlacesScreen({super.key});
+
+  @override
+  State<FavoritePlacesScreen> createState() => _FavoritePlacesScreenState();
+}
+
+class _FavoritePlacesScreenState extends State<FavoritePlacesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      context.read<FavoritePlacesCubit>().loadPlaces();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

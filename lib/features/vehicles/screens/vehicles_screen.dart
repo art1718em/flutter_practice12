@@ -7,8 +7,21 @@ import 'package:flutter_practice12/features/vehicles/logic/vehicles_cubit.dart';
 import 'package:flutter_practice12/features/vehicles/logic/vehicles_state.dart';
 import 'package:flutter_practice12/shared/utils/format_helpers.dart';
 
-class VehiclesScreen extends StatelessWidget {
+class VehiclesScreen extends StatefulWidget {
   const VehiclesScreen({super.key});
+
+  @override
+  State<VehiclesScreen> createState() => _VehiclesScreenState();
+}
+
+class _VehiclesScreenState extends State<VehiclesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      context.read<VehiclesCubit>().loadVehicles();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

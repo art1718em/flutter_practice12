@@ -1,18 +1,30 @@
 import 'package:flutter_practice12/core/models/tip_model.dart';
+import 'package:flutter_practice12/core/storage/database_helper.dart';
 import 'package:flutter_practice12/data/datasources/tips/tip_dto.dart';
 import 'package:flutter_practice12/data/datasources/tips/tip_mapper.dart';
 import 'package:uuid/uuid.dart';
 
 class TipsLocalDataSource {
   final _uuid = const Uuid();
-  late final List<TipDto> _tips;
+  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
+  bool _isInitialized = false;
 
-  TipsLocalDataSource() {
-    _initializeTips();
+  Future<void> _ensureInitialized() async {
+    if (_isInitialized) return;
+
+    final db = await _dbHelper.database;
+    final count = await db.rawQuery('SELECT COUNT(*) as count FROM tips');
+    final tipsCount = count.first['count'] as int;
+
+    if (tipsCount == 0) {
+      await _insertInitialTips(db);
+    }
+
+    _isInitialized = true;
   }
 
-  void _initializeTips() {
-    _tips = [
+  Future<void> _insertInitialTips(db) async {
+    final initialTips = [
       TipDto(
         id: _uuid.v4(),
         title: 'Как правильно проверить уровень масла',
@@ -165,44 +177,74 @@ class TipsLocalDataSource {
         isLiked: false,
       ),
     ];
+
+    for (final tip in initialTips) {
+      final json = tip.toJson();
+      json['isLiked'] = tip.isLiked ? 1 : 0;
+      await db.insert('tips', json);
+    }
   }
 
   Future<List<TipModel>> getTips() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return _tips.map((dto) => dto.toModel()).toList();
+    await _ensureInitialized();
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'tips',
+      orderBy: 'publishDate DESC',
+    );
+
+    return maps.map((map) {
+      final mapWithBool = Map<String, dynamic>.from(map);
+      mapWithBool['isLiked'] = map['isLiked'] == 1;
+      return TipDto.fromJson(mapWithBool).toModel();
+    }).toList();
   }
 
   Future<TipModel> getTipById(String id) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    try {
-      final dto = _tips.firstWhere((t) => t.id == id);
-      return dto.toModel();
-    } catch (e) {
+    await _ensureInitialized();
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'tips',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isEmpty) {
       throw Exception('Совет с id $id не найден');
     }
+
+    final map = maps.first;
+    final mapWithBool = Map<String, dynamic>.from(map);
+    mapWithBool['isLiked'] = map['isLiked'] == 1;
+    return TipDto.fromJson(mapWithBool).toModel();
   }
 
   Future<void> toggleLike(String id) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    try {
-      final index = _tips.indexWhere((t) => t.id == id);
-      if (index >= 0) {
-        final tip = _tips[index];
-        _tips[index] = TipDto(
-          id: tip.id,
-          title: tip.title,
-          content: tip.content,
-          category: tip.category,
-          publishDate: tip.publishDate,
-          imageUrl: tip.imageUrl,
-          likes: tip.isLiked ? tip.likes - 1 : tip.likes + 1,
-          isLiked: !tip.isLiked,
-        );
-      } else {
-        throw Exception('Совет с id $id не найден');
-      }
-    } catch (e) {
-      rethrow;
+    await _ensureInitialized();
+    final db = await _dbHelper.database;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      'tips',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isEmpty) {
+      throw Exception('Совет с id $id не найден');
     }
+
+    final tip = maps.first;
+    final isLiked = tip['isLiked'] == 1;
+    final likes = tip['likes'] as int;
+
+    await db.update(
+      'tips',
+      {
+        'likes': isLiked ? likes - 1 : likes + 1,
+        'isLiked': isLiked ? 0 : 1,
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 }

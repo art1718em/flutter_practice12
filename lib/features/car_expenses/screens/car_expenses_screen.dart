@@ -11,10 +11,24 @@ import '../logic/car_expenses_cubit.dart';
 import '../logic/car_expenses_state.dart';
 import '../widgets/expense_table.dart';
 
-class CarExpensesScreen extends StatelessWidget {
+class CarExpensesScreen extends StatefulWidget {
   const CarExpensesScreen({
     super.key,
   });
+
+  @override
+  State<CarExpensesScreen> createState() => _CarExpensesScreenState();
+}
+
+class _CarExpensesScreenState extends State<CarExpensesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      context.read<VehiclesCubit>().loadVehicles();
+      context.read<CarExpensesCubit>().loadExpenses();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -6,8 +6,21 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_practice12/features/tips/logic/tips_cubit.dart';
 import 'package:flutter_practice12/features/tips/logic/tips_state.dart';
 
-class TipsScreen extends StatelessWidget {
+class TipsScreen extends StatefulWidget {
   const TipsScreen({super.key});
+
+  @override
+  State<TipsScreen> createState() => _TipsScreenState();
+}
+
+class _TipsScreenState extends State<TipsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      context.read<TipsCubit>().loadTips();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
