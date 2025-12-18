@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 
 import 'package:flutter_practice12/core/storage/database_helper.dart';
+import 'package:flutter_practice12/core/storage/preferences_helper.dart';
 import 'package:flutter_practice12/data/datasources/auth/auth_local_datasource.dart';
 import 'package:flutter_practice12/data/datasources/vehicles/vehicles_local_datasource.dart';
 import 'package:flutter_practice12/data/datasources/expenses/expenses_local_datasource.dart';
@@ -65,6 +66,9 @@ final getIt = GetIt.instance;
 Future<void> setupDependencies() async {
   await DatabaseHelper.instance.database;
 
+  final preferencesHelper = await PreferencesHelper.getInstance();
+  getIt.registerSingleton<PreferencesHelper>(preferencesHelper);
+
   getIt.registerLazySingleton<AuthLocalDataSource>(() => AuthLocalDataSource());
   getIt.registerLazySingleton<VehiclesLocalDataSource>(() => VehiclesLocalDataSource());
   getIt.registerLazySingleton<ExpensesLocalDataSource>(() => ExpensesLocalDataSource());
@@ -72,7 +76,9 @@ Future<void> setupDependencies() async {
   getIt.registerLazySingleton<TipsLocalDataSource>(() => TipsLocalDataSource());
   getIt.registerLazySingleton<PlacesLocalDataSource>(() => PlacesLocalDataSource());
   getIt.registerLazySingleton<ProfileLocalDataSource>(() => ProfileLocalDataSource());
-  getIt.registerLazySingleton<SettingsLocalDataSource>(() => SettingsLocalDataSource());
+  getIt.registerLazySingleton<SettingsLocalDataSource>(
+    () => SettingsLocalDataSource(getIt<PreferencesHelper>()),
+  );
 
   getIt.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(getIt<AuthLocalDataSource>()),
