@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_practice12/features/auth/screens/splash_screen.dart';
 import 'package:flutter_practice12/features/auth/screens/login_screen.dart';
 import 'package:flutter_practice12/features/auth/screens/register_screen.dart';
 import 'package:flutter_practice12/features/car_expenses/screens/add_expense_screen.dart';
@@ -18,8 +19,12 @@ import 'package:flutter_practice12/features/vehicles/screens/vehicles_screen.dar
 import 'package:go_router/go_router.dart';
 
 final router = GoRouter(
-  initialLocation: '/auth/login',
+  initialLocation: '/splash',
   routes: <RouteBase>[
+    GoRoute(
+      path: '/splash',
+      builder: (context, state) => const SplashScreen(),
+    ),
     GoRoute(
       path: '/auth/login',
       builder: (context, state) => const LoginScreen(),

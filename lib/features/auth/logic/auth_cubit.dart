@@ -2,18 +2,39 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_practice12/domain/usecases/auth/login_usecase.dart';
 import 'package:flutter_practice12/domain/usecases/auth/register_usecase.dart';
 import 'package:flutter_practice12/domain/usecases/auth/logout_usecase.dart';
+import 'package:flutter_practice12/domain/usecases/auth/get_current_user_usecase.dart';
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final LoginUseCase loginUseCase;
   final RegisterUseCase registerUseCase;
   final LogoutUseCase logoutUseCase;
+  final GetCurrentUserUseCase getCurrentUserUseCase;
 
   AuthCubit({
     required this.loginUseCase,
     required this.registerUseCase,
     required this.logoutUseCase,
-  }) : super(const AuthState());
+    required this.getCurrentUserUseCase,
+  }) : super(const AuthState()) {
+    checkAuth();
+  }
+
+  Future<void> checkAuth() async {
+    try {
+      final user = await getCurrentUserUseCase();
+      if (user != null) {
+        emit(state.copyWith(
+          status: AuthStatus.authenticated,
+          user: user,
+        ));
+      } else {
+        emit(state.copyWith(status: AuthStatus.unauthenticated));
+      }
+    } catch (e) {
+      emit(state.copyWith(status: AuthStatus.unauthenticated));
+    }
+  }
 
   Future<void> login(String email, String password) async {
     emit(state.copyWith(status: AuthStatus.loading));

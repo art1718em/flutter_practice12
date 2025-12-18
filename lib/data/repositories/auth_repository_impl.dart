@@ -23,7 +23,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  UserModel? getCurrentUser() {
+  Future<UserModel?> getCurrentUser() {
     return localDataSource.getCurrentUser();
   }
 }

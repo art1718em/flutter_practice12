@@ -22,16 +22,6 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
-  void initializeProfile(String userId, String name, String email) {
-    final profile = UserProfileModel(
-      userId: userId,
-      name: name,
-      email: email,
-      avatar: 'https://ui-avatars.com/api/?name=$name&size=200&background=random',
-    );
-    emit(state.copyWith(profile: profile));
-  }
-
   Future<void> updateProfile({
     String? name,
     String? phone,

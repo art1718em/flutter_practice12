@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 
 import 'package:flutter_practice12/core/storage/database_helper.dart';
 import 'package:flutter_practice12/core/storage/preferences_helper.dart';
+import 'package:flutter_practice12/core/storage/secure_storage_helper.dart';
 import 'package:flutter_practice12/data/datasources/auth/auth_local_datasource.dart';
 import 'package:flutter_practice12/data/datasources/vehicles/vehicles_local_datasource.dart';
 import 'package:flutter_practice12/data/datasources/expenses/expenses_local_datasource.dart';
@@ -32,6 +33,7 @@ import 'package:flutter_practice12/domain/repositories/settings_repository.dart'
 import 'package:flutter_practice12/domain/usecases/auth/login_usecase.dart';
 import 'package:flutter_practice12/domain/usecases/auth/register_usecase.dart';
 import 'package:flutter_practice12/domain/usecases/auth/logout_usecase.dart';
+import 'package:flutter_practice12/domain/usecases/auth/get_current_user_usecase.dart';
 import 'package:flutter_practice12/domain/usecases/vehicles/get_vehicles_usecase.dart';
 import 'package:flutter_practice12/domain/usecases/vehicles/add_vehicle_usecase.dart';
 import 'package:flutter_practice12/domain/usecases/vehicles/update_vehicle_usecase.dart';
@@ -69,13 +71,20 @@ Future<void> setupDependencies() async {
   final preferencesHelper = await PreferencesHelper.getInstance();
   getIt.registerSingleton<PreferencesHelper>(preferencesHelper);
 
-  getIt.registerLazySingleton<AuthLocalDataSource>(() => AuthLocalDataSource());
+  final secureStorageHelper = await SecureStorageHelper.getInstance();
+  getIt.registerSingleton<SecureStorageHelper>(secureStorageHelper);
+
+  getIt.registerLazySingleton<AuthLocalDataSource>(
+    () => AuthLocalDataSource(getIt<SecureStorageHelper>()),
+  );
   getIt.registerLazySingleton<VehiclesLocalDataSource>(() => VehiclesLocalDataSource());
   getIt.registerLazySingleton<ExpensesLocalDataSource>(() => ExpensesLocalDataSource());
   getIt.registerLazySingleton<ServiceLocalDataSource>(() => ServiceLocalDataSource());
   getIt.registerLazySingleton<TipsLocalDataSource>(() => TipsLocalDataSource());
   getIt.registerLazySingleton<PlacesLocalDataSource>(() => PlacesLocalDataSource());
-  getIt.registerLazySingleton<ProfileLocalDataSource>(() => ProfileLocalDataSource());
+  getIt.registerLazySingleton<ProfileLocalDataSource>(
+    () => ProfileLocalDataSource(getIt<SecureStorageHelper>()),
+  );
   getIt.registerLazySingleton<SettingsLocalDataSource>(
     () => SettingsLocalDataSource(getIt<PreferencesHelper>()),
   );
@@ -108,6 +117,7 @@ Future<void> setupDependencies() async {
   getIt.registerFactory(() => LoginUseCase(getIt<AuthRepository>()));
   getIt.registerFactory(() => RegisterUseCase(getIt<AuthRepository>()));
   getIt.registerFactory(() => LogoutUseCase(getIt<AuthRepository>()));
+  getIt.registerFactory(() => GetCurrentUserUseCase(getIt<AuthRepository>()));
 
   getIt.registerFactory(() => GetVehiclesUseCase(getIt<VehiclesRepository>()));
   getIt.registerFactory(() => AddVehicleUseCase(getIt<VehiclesRepository>()));
@@ -140,6 +150,7 @@ Future<void> setupDependencies() async {
       loginUseCase: getIt<LoginUseCase>(),
       registerUseCase: getIt<RegisterUseCase>(),
       logoutUseCase: getIt<LogoutUseCase>(),
+      getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
     ),
   );
 
