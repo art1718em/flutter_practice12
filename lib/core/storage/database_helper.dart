@@ -28,6 +28,7 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE favorite_places (
         id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
         name TEXT NOT NULL,
         type TEXT NOT NULL,
         address TEXT NOT NULL,
@@ -41,6 +42,7 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE vehicles (
         id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
         brand TEXT NOT NULL,
         model TEXT NOT NULL,
         year INTEGER NOT NULL,
@@ -69,6 +71,7 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE expenses (
         id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
         vehicleId TEXT NOT NULL,
         title TEXT NOT NULL,
         amount REAL NOT NULL,
@@ -79,6 +82,7 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE service_records (
         id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
         vehicleId TEXT NOT NULL,
         title TEXT NOT NULL,
         type TEXT NOT NULL,

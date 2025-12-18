@@ -77,11 +77,19 @@ Future<void> setupDependencies() async {
   getIt.registerLazySingleton<AuthLocalDataSource>(
     () => AuthLocalDataSource(getIt<SecureStorageHelper>()),
   );
-  getIt.registerLazySingleton<VehiclesLocalDataSource>(() => VehiclesLocalDataSource());
-  getIt.registerLazySingleton<ExpensesLocalDataSource>(() => ExpensesLocalDataSource());
-  getIt.registerLazySingleton<ServiceLocalDataSource>(() => ServiceLocalDataSource());
+  getIt.registerLazySingleton<VehiclesLocalDataSource>(
+    () => VehiclesLocalDataSource(getIt<SecureStorageHelper>()),
+  );
+  getIt.registerLazySingleton<ExpensesLocalDataSource>(
+    () => ExpensesLocalDataSource(getIt<SecureStorageHelper>()),
+  );
+  getIt.registerLazySingleton<ServiceLocalDataSource>(
+    () => ServiceLocalDataSource(getIt<SecureStorageHelper>()),
+  );
   getIt.registerLazySingleton<TipsLocalDataSource>(() => TipsLocalDataSource());
-  getIt.registerLazySingleton<PlacesLocalDataSource>(() => PlacesLocalDataSource());
+  getIt.registerLazySingleton<PlacesLocalDataSource>(
+    () => PlacesLocalDataSource(getIt<SecureStorageHelper>()),
+  );
   getIt.registerLazySingleton<ProfileLocalDataSource>(
     () => ProfileLocalDataSource(getIt<SecureStorageHelper>()),
   );
