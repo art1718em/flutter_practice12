@@ -6,6 +6,11 @@ class AppTheme {
       brightness: Brightness.light,
       primarySwatch: Colors.blue,
       visualDensity: VisualDensity.adaptivePlatformDensity,
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
+      ),
     );
   }
 
@@ -14,6 +19,12 @@ class AppTheme {
       brightness: Brightness.dark,
       primarySwatch: Colors.blue,
       visualDensity: VisualDensity.adaptivePlatformDensity,
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.white70,
+        backgroundColor: Color(0xFF1E1E1E),
+        type: BottomNavigationBarType.fixed,
+      ),
     );
   }
 }
